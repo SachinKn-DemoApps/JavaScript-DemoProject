@@ -1,15 +1,20 @@
-FROM node:13-alpine
+# Use a lightweight Node.js image
+FROM node:lts-alpine
 
-RUN mkdir -p /home/app
-
-COPY ./app /home/app
-
-# set default dir so that next commands executes in /home/app dir
+# Set working directory so that next commands executes in /home/app directory
 WORKDIR /home/app
 
-# will execute npm install in /home/app because of WORKDIR
+# Copy only package.json and package-lock.json first
+COPY ./app/package*.json ./
+
+# Install dependencies before copying the rest of the code
 RUN npm install
 
-# no need for /home/app/server.js because of WORKDIR
-CMD ["node", "/home/app/server.js"]
+# Copy the entire application after dependencies are installed
+COPY ./app ./
 
+# Expose the port (optional, but recommended)
+EXPOSE 3000
+
+# Start the application (no need for /home/app/server.js because of WORKDIR)
+CMD ["node", "server.js"]
